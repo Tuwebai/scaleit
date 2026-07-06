@@ -1,0 +1,25 @@
+{
+  "name": "Scaleit App",
+  "short_name": "Scaleit",
+  "description": "Gestión operativa interna de Scaleit.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#101010",
+  "theme_color": "#101010",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/FAVICON.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/LOGOBLACK.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
