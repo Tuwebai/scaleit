@@ -1,4 +1,4 @@
-import { useMemo, useState, type CSSProperties } from 'react';
+﻿import { useMemo, useState, type CSSProperties } from 'react';
 import type { Client } from '../../modules/clients/domain/client';
 import { statusClass } from '../../modules/clients/domain/clientStatus';
 import type { Expense, Income } from '../../modules/finance/domain/finance';
@@ -265,7 +265,7 @@ function CalendarClientRow(props: { client: Client; mode: 'month' | 'week'; days
       <strong>{client.name}</strong>
       <div className={`calendar-hybrid-track ${mode}`} style={{ gridTemplateColumns: `repeat(${daysCount}, minmax(0, 1fr))` }}>
         <div className={`calendar-bar ${statusClass(client.status)}`} style={{ gridColumn: `${startIndex + 1} / span ${span}`, '--client-color': `linear-gradient(135deg, ${client.color}, ${client.color}cc)` } as CSSProperties}>
-          <strong>{client.status}</strong>
+          <strong>{client.name}</strong>
         </div>
       </div>
     </div>
@@ -293,3 +293,4 @@ function daysBetween(from: string, to: string) {
 function toLocalDate(value: string) {
   return new Date(`${value}T00:00:00`);
 }
+
