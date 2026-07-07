@@ -142,6 +142,7 @@ export function CalendarView({
   const firstMonth = clients[0]?.start ? monthFromDate(clients[0].start) : '2026-06';
   const [month, setMonth] = useState(firstMonth);
   const [mode, setMode] = useState<'month' | 'week'>('month');
+  const [sortBy, setSortBy] = useState<'delivery' | 'start' | 'name' | 'status'>('delivery');
   const [weekStart, setWeekStart] = useState(() => {
     const date = new Date(`${firstMonth}-01T00:00:00`);
     date.setDate(date.getDate() - mondayIndex(date));
@@ -158,7 +159,12 @@ export function CalendarView({
   }), [weekStart]);
   const rangeStart = mode === 'month' ? `${month}-01` : toInputDateLocal(weekStart);
   const rangeEnd = mode === 'month' ? `${month}-${String(daysInMonth).padStart(2, '0')}` : toInputDateLocal(addDays(weekStart, 6));
-  const visibleClients = clients.filter((client) => client.delivery >= rangeStart && client.start <= rangeEnd);
+  const visibleClients = [...clients.filter((client) => client.delivery >= rangeStart && client.start <= rangeEnd)].sort((a, b) => {
+    if (sortBy === 'delivery') return a.delivery.localeCompare(b.delivery);
+    if (sortBy === 'start') return a.start.localeCompare(b.start);
+    if (sortBy === 'name') return a.name.localeCompare(b.name);
+    return a.status.localeCompare(b.status);
+  });
   const calendarDays = mode === 'month'
     ? monthDays.map((day) => {
       const key = `${month}-${String(day).padStart(2, '0')}`;
@@ -199,6 +205,12 @@ export function CalendarView({
         <div className="segmented-actions">
           <button className={mode === 'month' ? 'ghost-btn active' : 'ghost-btn'} onClick={() => setMode('month')}>Mensual</button>
           <button className={mode === 'week' ? 'ghost-btn active' : 'ghost-btn'} onClick={() => setMode('week')}>Semanal</button>
+          <select value={sortBy} onChange={(event) => setSortBy(event.target.value as 'delivery' | 'start' | 'name' | 'status')}>
+            <option value="delivery">Ordenar por: entrega más cercana</option>
+            <option value="start">Ordenar por: inicio más cercano</option>
+            <option value="name">Ordenar por: nombre</option>
+            <option value="status">Ordenar por: estado</option>
+          </select>
           <input type="month" value={month} onChange={(event) => changeMonth(event.target.value)} />
         </div>
       </div>
@@ -221,8 +233,6 @@ export function CalendarView({
                 <article className="calendar-work-item" key={client.id}>
                   <em className={`status ${statusClass(client.status)}`}>{client.status}</em>
                   <h3>{client.name}</h3>
-                  <span>{formatDate(client.start)} al {formatDate(client.delivery)}</span>
-                  <small>{client.customServiceName || serviceById(client.serviceId)} · {client.assignedTo.map(userById).join(', ')}</small>
                 </article>
               ))}
             </aside>
@@ -256,7 +266,6 @@ function CalendarClientRow(props: { client: Client; mode: 'month' | 'week'; days
       <div className={`calendar-hybrid-track ${mode}`} style={{ gridTemplateColumns: `repeat(${daysCount}, minmax(0, 1fr))` }}>
         <div className={`calendar-bar ${statusClass(client.status)}`} style={{ gridColumn: `${startIndex + 1} / span ${span}`, '--client-color': `linear-gradient(135deg, ${client.color}, ${client.color}cc)` } as CSSProperties}>
           <strong>{client.status}</strong>
-          <span>{formatDate(client.start)} - {formatDate(client.delivery)}</span>
         </div>
       </div>
     </div>

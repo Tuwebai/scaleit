@@ -629,7 +629,7 @@ select:focus {
 }
 
 .calendar-bar {
-  min-height: 40px;
+  min-height: 58px;
   display: grid;
   align-content: center;
   gap: 2px;
@@ -658,16 +658,16 @@ select:focus {
 
 .calendar-work-list {
   display: grid;
-  gap: 10px;
+  gap: 6px;
   align-content: start;
   padding-top: 44px;
 }
 
 .calendar-work-item {
   display: grid;
-  gap: 6px;
-  min-height: 92px;
-  padding: 14px;
+  gap: 4px;
+  min-height: 78px;
+  padding: 12px 14px;
   border: 1px solid var(--line);
   border-radius: 18px;
   background: var(--surface-solid);
@@ -720,7 +720,7 @@ select:focus {
 }
 
 .calendar-hybrid-row {
-  min-height: 102px;
+  min-height: 84px;
   border-top: 1px solid var(--line);
 }
 
@@ -738,7 +738,7 @@ select:focus {
   display: grid;
   grid-column: 1 / -1;
   align-items: center;
-  min-height: 72px;
+  min-height: 70px;
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -1991,6 +1991,12 @@ select,
 
 .calendar-bar.done {
   background: #059669 !important;
+}
+
+.calendar-hybrid .calendar-bar.pending,
+.calendar-hybrid .calendar-bar.progress,
+.calendar-hybrid .calendar-bar.done {
+  background: var(--client-color) !important;
 }
 
 .calendar-bar::after,
