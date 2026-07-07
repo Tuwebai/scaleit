@@ -51,7 +51,7 @@ function App() {
   const [clientForm, setClientForm] = useState({ name: '', phone: '', value: '', serviceId: '', customServiceName: '', color: '#f97316', status: 'Sin empezar' as ClientStatus, start: '2026-06-24', delivery: '2026-07-01', assignedTo: [] as string[], notes: '' });
   const [serviceForm, setServiceForm] = useState({ name: '', description: '', value: '', valueUsd: '', active: true });
   const [incomeForm, setIncomeForm] = useState({ concept: '', description: '', amount: '', ownerId: '', kind: 'Deposito' as IncomeKind, status: 'Pendiente' as IncomeStatus });
-  const [taskForm, setTaskForm] = useState({ concept: '', details: '', assignedTo: [] as string[] });
+  const [taskForm, setTaskForm] = useState({ concept: '', details: '', clientId: '', assignedTo: [] as string[] });
   const [expenseForm, setExpenseForm] = useState({ concept: '', amount: '' });
   const [financeFilter, setFinanceFilter] = useState(() => {
     const savedFilter = localStorage.getItem('scaleit.financeFilter');
@@ -169,7 +169,8 @@ function App() {
     return isAdmin || !['servicios', 'usuarios'].includes(item.id);
   });
   const visibleClients = isAdmin ? clients : clients.filter((client) => client.assignedTo.includes(currentUser.id));
-  const visibleTasks = isAdmin ? tasks : tasks.filter((task) => task.ownerId === currentUser.id);
+  const visibleTasks = tasks.filter((task) => task.ownerId === currentUser.id);
+  const otherTasks = isAdmin ? tasks.filter((task) => task.ownerId !== currentUser.id) : [];
   const financeRange = getFinanceRange(financeFilter);
   const periodIncome = income.filter((item) => isDateInRange(item.date, financeRange.from, financeRange.to));
   const periodExpenses = expenses.filter((item) => isDateInRange(item.date, financeRange.from, financeRange.to));
@@ -321,9 +322,9 @@ function App() {
       throw new Error('Completá el concepto.');
     }
     const ownerIds = isAdmin && taskForm.assignedTo.length > 0 ? taskForm.assignedTo : [currentUser.id];
-    const optimisticTasks: Task[] = ownerIds.map((ownerId) => ({ id: crypto.randomUUID(), category: 'General', concept: taskForm.concept, details: taskForm.details, completed: false, ownerId }));
+    const optimisticTasks: Task[] = ownerIds.map((ownerId) => ({ id: crypto.randomUUID(), category: 'General', concept: taskForm.concept, details: taskForm.details, completed: false, ownerId, clientId: taskForm.clientId }));
     setTasks((prev) => [...optimisticTasks, ...prev]);
-    setTaskForm({ concept: '', details: '', assignedTo: [] });
+    setTaskForm({ concept: '', details: '', clientId: '', assignedTo: [] });
     try {
       const createdTasks = await Promise.all(optimisticTasks.map((task) => createTasksRepository().create(task)));
       setTasks((prev) => prev.map((item) => createdTasks.find((task) => task.ownerId === item.ownerId && optimisticTasks.some((draft) => draft.id === item.id)) ?? item));
@@ -703,11 +704,11 @@ function App() {
         </header>
         <div className="view-shell" key={active}>
           {active === 'clientes' && (
-            <ClientsView addClient={addClient} clientForm={clientForm} clients={visibleClients} isAdmin={isAdmin} onRemove={removeClient} onUpdate={updateClient} serviceById={serviceById} services={services} setClientForm={setClientForm} userById={userById} users={users} />
+            <ClientsView addClient={addClient} clientForm={clientForm} clients={visibleClients} isAdmin={isAdmin} onRemove={removeClient} onUpdate={updateClient} serviceById={serviceById} services={services} setClientForm={setClientForm} tasks={tasks} userById={userById} users={users} />
           )}
 
           {active === 'tareas' && (
-            <TasksView addTask={addTask} currentUserId={currentUser.id} isAdmin={isAdmin} onRemoveTask={removeTask} onUpdateTask={updateTask} onToggleTask={toggleTask} setTaskForm={setTaskForm} taskForm={taskForm} tasks={visibleTasks} userById={userById} users={users} />
+            <TasksView addTask={addTask} clients={clients} currentUserId={currentUser.id} isAdmin={isAdmin} onRemoveTask={removeTask} onUpdateTask={updateTask} onToggleTask={toggleTask} otherTasks={otherTasks} setTaskForm={setTaskForm} taskForm={taskForm} tasks={visibleTasks} userById={userById} users={users} />
           )}
 
           {active === 'servicios' && (

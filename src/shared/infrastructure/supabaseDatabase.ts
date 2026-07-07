@@ -119,6 +119,7 @@ type TaskTable = Table<{
   details: string | null;
   completed: boolean;
   owner_id: string;
+  client_id: string | null;
   created_at: string;
   updated_at: string;
 }>;

@@ -21,6 +21,7 @@ export function createTasksRepository(): TasksRepository {
           details: input.details,
           completed: input.completed,
           owner_id: input.ownerId,
+          client_id: input.clientId || null,
         })
         .select('*')
         .single();
@@ -30,7 +31,7 @@ export function createTasksRepository(): TasksRepository {
     async update(id, input) {
       const { data, error } = await supabase
         .from('tasks')
-        .update({ concept: input.concept, details: input.details, completed: input.completed })
+        .update({ concept: input.concept, details: input.details, completed: input.completed, client_id: input.clientId === undefined ? undefined : input.clientId || null })
         .eq('id', id)
         .select('*')
         .single();
@@ -44,7 +45,7 @@ export function createTasksRepository(): TasksRepository {
   };
 }
 
-function mapTask(row: { id: string; category: string; concept: string; details: string | null; completed: boolean; owner_id: string }): Task {
+function mapTask(row: { id: string; category: string; concept: string; details: string | null; completed: boolean; owner_id: string; client_id: string | null }): Task {
   return {
     id: row.id,
     category: row.category,
@@ -52,5 +53,6 @@ function mapTask(row: { id: string; category: string; concept: string; details: 
     details: row.details ?? '',
     completed: row.completed,
     ownerId: row.owner_id,
+    clientId: row.client_id ?? '',
   };
 }

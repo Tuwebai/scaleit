@@ -5,4 +5,5 @@ export type Task = {
   details: string;
   completed: boolean;
   ownerId: string;
+  clientId: string;
 };

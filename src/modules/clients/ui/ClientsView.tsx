@@ -3,6 +3,7 @@ import { Plus } from 'lucide-react';
 import type { Client, ClientStatus } from '../domain/client';
 import { statusClass } from '../domain/clientStatus';
 import type { Service } from '../../services/domain/service';
+import type { Task } from '../../tasks/domain/task';
 import type { User } from '../../users/domain/user';
 import { formatDate } from '../../../shared/date/dateFormatters';
 import { money } from '../../../shared/formatters/money';
@@ -22,12 +23,13 @@ type ClientsViewProps = {
   serviceById: (id: string) => Service | undefined;
   services: Service[];
   setClientForm: Dispatch<SetStateAction<ClientForm>>;
+  tasks: Task[];
   userById: (id: string) => string;
   users: User[];
 };
 
 export function ClientsView(props: ClientsViewProps) {
-  const { addClient, clientForm, clients, isAdmin, onRemove, onUpdate, serviceById, services, setClientForm, userById, users } = props;
+  const { addClient, clientForm, clients, isAdmin, onRemove, onUpdate, serviceById, services, setClientForm, tasks, userById, users } = props;
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   async function submit() {
@@ -52,7 +54,7 @@ export function ClientsView(props: ClientsViewProps) {
         {clients.length === 0 ? (
           <EmptyState title={isAdmin ? 'Todavía no hay clientes' : 'Todavía no hay trabajos'} description={isAdmin ? 'Creá el primer cliente para empezar a organizar trabajos, fechas y responsables.' : ''} variant="clients" />
         ) : clients.map((client) => (
-          <ClientSummary key={client.id} client={client} isAdmin={isAdmin} onRemove={onRemove} onUpdate={onUpdate} serviceById={serviceById} services={services} userById={userById} users={users} />
+          <ClientSummary key={client.id} client={client} isAdmin={isAdmin} onRemove={onRemove} onUpdate={onUpdate} pendingTasks={tasks.filter((task) => task.clientId === client.id && !task.completed)} serviceById={serviceById} services={services} userById={userById} users={users} />
         ))}
       </section>
       {isModalOpen && (
@@ -70,12 +72,13 @@ function ClientSummary(props: {
   isAdmin: boolean;
   onRemove: (id: string) => Promise<void> | void;
   onUpdate: (id: string, patch: Partial<Omit<Client, 'id'>>) => Promise<void> | void;
+  pendingTasks: Task[];
   serviceById: (id: string) => Service | undefined;
   services: Service[];
   userById: (id: string) => string;
   users: User[];
 }) {
-  const { client, isAdmin, onRemove, onUpdate, serviceById, services, userById, users } = props;
+  const { client, isAdmin, onRemove, onUpdate, pendingTasks, serviceById, services, userById, users } = props;
   const [isEditing, setIsEditing] = useState(false);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [draft, setDraft] = useState<ClientForm>({ ...client, value: String(client.value) });
@@ -106,6 +109,12 @@ function ClientSummary(props: {
         <ActionModal title={client.name} subtitle={service} onClose={() => setIsInfoOpen(false)}>
           <div className="detail-grid"><span><strong>Telefono</strong>{client.phone || '-'}</span>{isAdmin && <span><strong>Valor</strong>{money.format(client.value)}</span>}<span><strong>Inicio</strong>{formatDate(client.start)}</span><span><strong>Entrega</strong>{formatDate(client.delivery)}</span><span><strong>Responsable</strong>{assigned}</span><span><strong>Estado</strong>{client.status}</span></div>
           <p className="notes">{client.notes || 'Sin notas cargadas.'}</p>
+          <div className="client-task-list">
+            <strong>Tareas pendientes</strong>
+            {pendingTasks.length === 0 ? <span>No hay tareas pendientes para este cliente.</span> : pendingTasks.map((task) => (
+              <div key={task.id}><b>{task.concept}</b><small>{userById(task.ownerId)}</small></div>
+            ))}
+          </div>
         </ActionModal>
       )}
       {isEditing && (

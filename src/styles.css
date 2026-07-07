@@ -971,12 +971,41 @@ select:focus {
 .task-owner {
   width: fit-content;
   margin-top: 4px;
+  margin-right: 6px;
   padding: 5px 9px;
   color: var(--muted);
   background: color-mix(in srgb, var(--surface-solid) 82%, var(--muted) 18%);
   border-radius: 999px;
   font-size: 12px;
   font-style: normal;
+  font-weight: 800;
+}
+
+.client-task-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--surface-solid) 86%, var(--orange-soft) 14%);
+}
+
+.client-task-list > span {
+  color: var(--muted);
+}
+
+.client-task-list div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+
+.client-task-list small {
+  color: var(--muted);
   font-weight: 800;
 }
 
